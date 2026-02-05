@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Learning Platform";
+}
+
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-3 fw-bold mb-4">Welcome to Learning Platform</h1>
+                <p class="lead mb-4">
+                    A comprehensive learning management system for employees, managers, and HR teams. 
+                    Manage training, track progress, and develop your workforce.
+                </p>
+                @if (User?.Identity?.IsAuthenticated ?? false)
+                {
+                    <div class="btn-group" role="group">
+                        @if (User.IsInRole("Employee"))
+                        {
+                            <a class="btn btn-light btn-lg" asp-controller="Employee" asp-action="Index">
+                                <i class="fas fa-graduation-cap"></i> Employee Dashboard
+                            </a>
+                        }
+                        @if (User.IsInRole("Manager"))
+                        {
+                            <a class="btn btn-light btn-lg" asp-controller="Manager" asp-action="Index">
+                                <i class="fas fa-users"></i> Manager Dashboard
+                            </a>
+                        }
+                        @if (User.IsInRole("HR"))
+                        {
+                            <a class="btn btn-light btn-lg" asp-controller="HR" asp-action="Index">
+                                <i class="fas fa-cogs"></i> HR Dashboard
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Login">
+                        <i class="fas fa-sign-in-alt"></i> Login to Your Account
+                    </a>
+                }
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body text-dark p-4">
+                        <h5 class="card-title mb-3">🎯 Key Features</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check-circle text-success"></i> Track Learning Progress</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success"></i> Assign Courses</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success"></i> Team Management</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success"></i> Performance Reports</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success"></i> Role-Based Access</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="display-4 text-primary mb-3"><i class="fas fa-user-tie"></i></div>
+                    <h5 class="card-title">Employee</h5>
+                    <p class="card-text">Track your learning assignments, monitor progress, and complete courses assigned by managers.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="display-4 text-success mb-3"><i class="fas fa-users"></i></div>
+                    <h5 class="card-title">Manager</h5>
+                    <p class="card-text">Manage your team members, assign learning courses, and monitor their progress and achievements.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="display-4 text-info mb-3"><i class="fas fa-cogs"></i></div>
+                    <h5 class="card-title">HR Admin</h5>
+                    <p class="card-text">Administrative access to manage users, courses, and organizational learning strategies.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
