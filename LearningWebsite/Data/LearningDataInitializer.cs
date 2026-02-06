@@ -79,95 +79,96 @@ namespace LearningWebsite.Data
                 context.SaveChanges();
             }
 
-            // Add sample users with manager-employee relationships
-            if (!context.Users.Any())
-            {
-                // Create managers first
-                var manager1 = new ApplicationUser 
-                { 
-                    UserName = "manager1", 
-                    PasswordHash = hasher.HashPassword(null!, "password"), 
-                    Role = "Manager",
-                    FullName = "John Manager",
-                    Email = "manager1@company.com"
-                };
+            // Add sample users with manager-employee relationships only if no users exist
+            // (DbInitializer already creates initial users)
+            var existingUsers = context.Users.ToList();
 
+            if (existingUsers.Count <= 3) // Only initial users exist
+            {
+                // Create additional managers
                 var manager2 = new ApplicationUser 
                 { 
-                    UserName = "manager2", 
-                    PasswordHash = hasher.HashPassword(null!, "password"), 
+                    UserName = "mgr2", 
+                    PasswordHash = hasher.HashPassword(null!, "Password123!"), 
                     Role = "Manager",
                     FullName = "Jane Manager",
-                    Email = "manager2@company.com"
+                    Email = "mgr2@company.com"
                 };
 
-                var hrAdmin = new ApplicationUser 
-                { 
-                    UserName = "hr1", 
-                    PasswordHash = hasher.HashPassword(null!, "password"), 
-                    Role = "HR",
-                    FullName = "HR Admin",
-                    Email = "hr1@company.com"
-                };
-
-                context.Users.AddRange(manager1, manager2, hrAdmin);
+                context.Users.Add(manager2);
                 context.SaveChanges();
 
-                // Get manager IDs after they are saved
-                var savedManager1 = context.Users.FirstOrDefault(u => u.UserName == "manager1");
-                var savedManager2 = context.Users.FirstOrDefault(u => u.UserName == "manager2");
+                // Get existing manager (mgr1)
+                var manager1 = context.Users.FirstOrDefault(u => u.UserName == "mgr1");
+                var savedManager2 = context.Users.FirstOrDefault(u => u.UserName == "mgr2");
 
-                // Create employees assigned to managers
+                // Create additional employees assigned to managers
                 var employees = new[]
                 {
                     new ApplicationUser 
                     { 
-                        UserName = "employee1", 
-                        PasswordHash = hasher.HashPassword(null!, "password"), 
-                        Role = "Employee",
-                        FullName = "Alice Employee",
-                        Email = "employee1@company.com",
-                        ManagerId = savedManager1?.Id
-                    },
-                    new ApplicationUser 
-                    { 
-                        UserName = "employee2", 
-                        PasswordHash = hasher.HashPassword(null!, "password"), 
+                        UserName = "emp2", 
+                        PasswordHash = hasher.HashPassword(null!, "Password123!"), 
                         Role = "Employee",
                         FullName = "Bob Employee",
-                        Email = "employee2@company.com",
-                        ManagerId = savedManager1?.Id
+                        Email = "emp2@company.com",
+                        ManagerId = manager1?.Id
                     },
                     new ApplicationUser 
                     { 
-                        UserName = "employee3", 
-                        PasswordHash = hasher.HashPassword(null!, "password"), 
+                        UserName = "emp3", 
+                        PasswordHash = hasher.HashPassword(null!, "Password123!"), 
                         Role = "Employee",
                         FullName = "Charlie Employee",
-                        Email = "employee3@company.com",
-                        ManagerId = savedManager1?.Id
+                        Email = "emp3@company.com",
+                        ManagerId = manager1?.Id
                     },
                     new ApplicationUser 
                     { 
-                        UserName = "employee4", 
-                        PasswordHash = hasher.HashPassword(null!, "password"), 
+                        UserName = "emp4", 
+                        PasswordHash = hasher.HashPassword(null!, "Password123!"), 
                         Role = "Employee",
                         FullName = "Diana Employee",
-                        Email = "employee4@company.com",
+                        Email = "emp4@company.com",
                         ManagerId = savedManager2?.Id
                     },
                     new ApplicationUser 
                     { 
-                        UserName = "employee5", 
-                        PasswordHash = hasher.HashPassword(null!, "password"), 
+                        UserName = "emp5", 
+                        PasswordHash = hasher.HashPassword(null!, "Password123!"), 
                         Role = "Employee",
                         FullName = "Eve Employee",
-                        Email = "employee5@company.com",
+                        Email = "emp5@company.com",
                         ManagerId = savedManager2?.Id
                     }
                 };
 
                 context.Users.AddRange(employees);
+
+                // Update emp1 with manager and full details
+                var emp1 = context.Users.FirstOrDefault(u => u.UserName == "emp1");
+                if (emp1 != null)
+                {
+                    emp1.FullName = "Alice Employee";
+                    emp1.Email = "emp1@company.com";
+                    emp1.ManagerId = manager1?.Id;
+                }
+
+                // Update mgr1 with full details
+                if (manager1 != null)
+                {
+                    manager1.FullName = "John Manager";
+                    manager1.Email = "mgr1@company.com";
+                }
+
+                // Update hr1 with full details
+                var hr1 = context.Users.FirstOrDefault(u => u.UserName == "hr1");
+                if (hr1 != null)
+                {
+                    hr1.FullName = "HR Admin";
+                    hr1.Email = "hr1@company.com";
+                }
+
                 context.SaveChanges();
             }
 

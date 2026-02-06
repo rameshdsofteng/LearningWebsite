@@ -1,0 +1,71 @@
+@model LearningWebsite.Models.Learning
+@{
+    ViewData["Title"] = "Training - " + Model.Title;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2>@Model.Title</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Category:</strong> @Model.Category</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Duration:</strong> @Model.DurationInHours hours</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4>Description</h4>
+                        <p>@Model.Description</p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-info-circle"></i> Training Instructions</h5>
+                        <ul>
+                            <li>Please read through the learning material carefully</li>
+                            <li>Ensure you understand all concepts before taking the assessment</li>
+                            <li>The assessment will contain random questions from this training</li>
+                            <li>You need to score 70% or above to pass the assessment</li>
+                        </ul>
+                    </div>
+
+                    @if (ViewBag.AssessmentCompleted)
+                    {
+                        <div class="alert @(ViewBag.AssessmentPassed ? "alert-success" : "alert-warning")">
+                            <h5>
+                                <i class="bi @(ViewBag.AssessmentPassed ? "bi-check-circle" : "bi-exclamation-circle")"></i> 
+                                Assessment Status
+                            </h5>
+                            <p>
+                                @if (ViewBag.AssessmentPassed)
+                                {
+                                    <text>You have successfully completed this assessment!</text>
+                                }
+                                else
+                                {
+                                    <text>You have already attempted this assessment. Please review the material and try again if needed.</text>
+                                }
+                            </p>
+                            <a asp-action="AssessmentHistory" class="btn btn-info">View Assessment History</a>
+                        </div>
+                    }
+
+                    <div class="mt-4">
+                        <a asp-action="TakeAssessment" asp-route-id="@Model.Id" class="btn btn-success btn-lg">
+                            <i class="bi bi-clipboard-check"></i> Start Assessment
+                        </a>
+                        <a asp-controller="Employee" asp-action="Index" class="btn btn-secondary btn-lg">
+                            <i class="bi bi-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

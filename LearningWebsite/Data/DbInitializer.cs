@@ -54,8 +54,8 @@ namespace LearningWebsite.Data
                     // Idempotent seeding: add each user only if that username is not already present.
                     var seeded = new List<(string UserName, string Role)>
                     {
-                        ("employee1", "Employee"),
-                        ("manager1", "Manager"),
+                        ("emp1", "Employee"),
+                        ("mgr1", "Manager"),
                         ("hr1", "HR")
                     };
 

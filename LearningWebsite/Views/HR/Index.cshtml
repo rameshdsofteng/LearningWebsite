@@ -312,16 +312,41 @@
                         </select>
                     </div>
 
+                    <!-- Category Filter Buttons -->
                     <div class="mb-3">
-                        <label for="learningIds" class="form-label">Select Learnings <span class="text-danger">*</span></label>
+                        <label class="form-label"><i class="fas fa-filter"></i> Filter by Category:</label>
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-primary" data-category="All" onclick="filterByCategory('All')">
+                                <i class="fas fa-th"></i> All (@allLearnings.Count)
+                            </button>
+                            @{
+                                var categoryGroups = allLearnings.GroupBy(l => l.Category).OrderBy(g => g.Key);
+                                foreach (var categoryGroup in categoryGroups)
+                                {
+                                    <button type="button" class="btn btn-outline-info" data-category="@categoryGroup.Key" onclick="filterByCategory('@categoryGroup.Key')">
+                                        <i class="fas fa-tag"></i> @categoryGroup.Key (@categoryGroup.Count())
+                                    </button>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="learningIds" class="form-label">
+                            Select Learnings <span class="text-danger">*</span> 
+                            <span class="badge bg-secondary" id="currentCategoryBadge">All Categories</span>
+                        </label>
                         <select class="form-select" id="learningIds" name="learningIds" multiple size="8" required style="height: 250px;">
                             @foreach (var learning in allLearnings)
                             {
-                                <option value="@learning.Id">@learning.Title (@learning.Category)</option>
+                                <option value="@learning.Id" data-category="@learning.Category">
+                                    @learning.Title <span class="text-muted">(@learning.Category)</span>
+                                </option>
                             }
                         </select>
                         <small class="form-text text-muted">
-                            <strong>Selected:</strong> <span id="selectedLearningCount">0</span> learning(s)
+                            <strong>Selected:</strong> <span id="selectedLearningCount">0</span> learning(s) | 
+                            <strong>Showing:</strong> <span id="visibleLearningCount">@allLearnings.Count</span> learning(s)
                         </small>
                     </div>
 
@@ -336,7 +361,10 @@
                         <label class="form-label">Quick Select:</label>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllLearnings">
-                                <i class="fas fa-check-double"></i> Select All
+                                <i class="fas fa-check-double"></i> Select All Visible
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-success" id="selectByCategory">
+                                <i class="fas fa-layer-group"></i> Select Current Category
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-secondary" id="clearAllLearnings">
                                 <i class="fas fa-times"></i> Clear All
@@ -536,6 +564,8 @@
 
         // Learning selection counter
         const learningSelect = document.getElementById('learningIds');
+        let currentCategory = 'All';
+
         if (learningSelect) {
             learningSelect.addEventListener('change', function() {
                 const selected = this.selectedOptions.length;
@@ -544,12 +574,77 @@
             });
         }
 
+        // Category filtering function
+        function filterByCategory(category) {
+            currentCategory = category;
+            const select = document.getElementById('learningIds');
+            const options = Array.from(select.options);
+            let visibleCount = 0;
+
+            // Update category badge
+            document.getElementById('currentCategoryBadge').textContent = 
+                category === 'All' ? 'All Categories' : category;
+
+            // Update button active state
+            document.querySelectorAll('[data-category]').forEach(btn => {
+                if (btn.getAttribute('data-category') === category) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Show/hide options based on category
+            options.forEach(option => {
+                const optionCategory = option.getAttribute('data-category');
+                if (category === 'All' || optionCategory === category) {
+                    option.style.display = '';
+                    visibleCount++;
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+
+            // Update visible count
+            document.getElementById('visibleLearningCount').textContent = visibleCount;
+
+            // Clear any selections of hidden items
+            options.forEach(option => {
+                if (option.style.display === 'none' && option.selected) {
+                    option.selected = false;
+                }
+            });
+
+            // Trigger change event to update counters
+            select.dispatchEvent(new Event('change'));
+        }
+
         // Quick select buttons
         const selectAllBtn = document.getElementById('selectAllLearnings');
         if (selectAllBtn) {
             selectAllBtn.addEventListener('click', function() {
                 const select = document.getElementById('learningIds');
-                Array.from(select.options).forEach(option => option.selected = true);
+                // Only select visible options
+                Array.from(select.options).forEach(option => {
+                    if (option.style.display !== 'none') {
+                        option.selected = true;
+                    }
+                });
+                select.dispatchEvent(new Event('change'));
+            });
+        }
+
+        // Select by current category button
+        const selectByCategoryBtn = document.getElementById('selectByCategory');
+        if (selectByCategoryBtn) {
+            selectByCategoryBtn.addEventListener('click', function() {
+                const select = document.getElementById('learningIds');
+                Array.from(select.options).forEach(option => {
+                    const optionCategory = option.getAttribute('data-category');
+                    if (currentCategory === 'All' || optionCategory === currentCategory) {
+                        option.selected = true;
+                    }
+                });
                 select.dispatchEvent(new Event('change'));
             });
         }
@@ -560,6 +655,15 @@
                 const select = document.getElementById('learningIds');
                 Array.from(select.options).forEach(option => option.selected = false);
                 select.dispatchEvent(new Event('change'));
+            });
+        }
+
+        // Reset filter when modal is closed
+        const assignLearningModal = document.getElementById('assignLearningModal');
+        if (assignLearningModal) {
+            assignLearningModal.addEventListener('hidden.bs.modal', function() {
+                filterByCategory('All');
+                document.getElementById('clearAllLearnings').click();
             });
         }
     </script>

@@ -43,6 +43,7 @@ using (var scope = app.Services.CreateScope())
     var db = services.GetRequiredService<AppDbContext>();
     var hasher = services.GetRequiredService<IPasswordHasher<ApplicationUser>>();
     DbInitializer.Initialize(db, hasher);
+    QuestionDataInitializer.Initialize(db);
 }
 
 // Configure the HTTP request pipeline.

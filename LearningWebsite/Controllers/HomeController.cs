@@ -15,18 +15,22 @@ namespace LearningWebsite.Controllers
 
         public IActionResult Index()
         {
+            _logger.LogInformation("Home page accessed");
             return View();
         }
 
         public IActionResult Privacy()
         {
+            _logger.LogInformation("Privacy page accessed");
             return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var errorId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            _logger.LogError("Error page displayed with RequestId: {RequestId}", errorId);
+            return View(new ErrorViewModel { RequestId = errorId });
         }
     }
 }

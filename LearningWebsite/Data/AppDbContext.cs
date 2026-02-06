@@ -12,6 +12,8 @@ namespace LearningWebsite.Data
         public DbSet<ApplicationUser> Users { get; set; } = null!;
         public DbSet<Learning> Learnings { get; set; } = null!;
         public DbSet<LearningAssignment> LearningAssignments { get; set; } = null!;
+        public DbSet<Question> Questions { get; set; } = null!;
+        public DbSet<AssessmentResult> AssessmentResults { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,7 +27,7 @@ namespace LearningWebsite.Data
                 .HasOne(u => u.Manager)
                 .WithMany(u => u.TeamMembers)
                 .HasForeignKey(u => u.ManagerId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
 
             // Configure relationships
             modelBuilder.Entity<LearningAssignment>()
@@ -39,6 +41,31 @@ namespace LearningWebsite.Data
                 .WithMany(l => l.Assignments)
                 .HasForeignKey(la => la.LearningId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Question-Learning relationship
+            modelBuilder.Entity<Question>()
+                .HasOne(q => q.Learning)
+                .WithMany()
+                .HasForeignKey(q => q.LearningId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // AssessmentResult relationships
+            modelBuilder.Entity<AssessmentResult>()
+                .HasOne(ar => ar.User)
+                .WithMany()
+                .HasForeignKey(ar => ar.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<AssessmentResult>()
+                .HasOne(ar => ar.Learning)
+                .WithMany()
+                .HasForeignKey(ar => ar.LearningId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure decimal precision for Score
+            modelBuilder.Entity<AssessmentResult>()
+                .Property(ar => ar.Score)
+                .HasPrecision(5, 2);
         }
     }
 }

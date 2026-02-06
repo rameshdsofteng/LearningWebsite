@@ -176,7 +176,12 @@
                         <td>${new Date(assignment.assignedDate).toLocaleDateString()}</td>
                         <td>${new Date(assignment.dueDate).toLocaleDateString()}</td>
                         <td><span class="badge badge-${assignment.daysUntilDue < 0 ? 'danger' : assignment.daysUntilDue <= 7 ? 'warning' : 'info'}">${assignment.daysUntilDue}</span></td>
-                        <td><button class="btn btn-sm btn-primary" onclick="openUpdateModal(${assignment.id}, '${assignment.title}', '${assignment.status}', ${assignment.progressPercentage || 0})">Update</button></td>
+                        <td>
+                            <a href="/Assessment/Training/${assignment.learningId}" class="btn btn-sm btn-info" title="View Training">
+                                <i class="bi bi-book"></i> Training
+                            </a>
+                            <button class="btn btn-sm btn-primary" onclick="openUpdateModal(${assignment.id}, '${assignment.title}', '${assignment.status}', ${assignment.progressPercentage || 0})">Update</button>
+                        </td>
                     `;
                     tbody.appendChild(row);
                 });

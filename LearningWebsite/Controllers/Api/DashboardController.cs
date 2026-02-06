@@ -49,6 +49,7 @@ namespace LearningWebsite.Controllers.Api
                     Assignments = assignments.Select(a => new
                     {
                         a.Id,
+                        a.LearningId,
                         a.Learning!.Title,
                         a.Learning.Category,
                         a.Status,

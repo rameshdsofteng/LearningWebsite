@@ -1,0 +1,103 @@
+@model LearningWebsite.Models.AssessmentViewModel
+@{
+    ViewData["Title"] = "Assessment - " + Model.LearningTitle;
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h2><i class="bi bi-clipboard-check"></i> @Model.LearningTitle - Assessment</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <strong>Instructions:</strong>
+                <ul class="mb-0">
+                    <li>Answer all questions to the best of your ability</li>
+                    <li>You need to score 70% or above to pass</li>
+                    <li>Total Questions: @Model.Questions.Count</li>
+                </ul>
+            </div>
+
+            <form asp-action="SubmitAssessment" method="post" id="assessmentForm">
+                <input type="hidden" asp-for="LearningId" />
+
+                @for (int i = 0; i < Model.Questions.Count; i++)
+                {
+                    var question = Model.Questions[i];
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5>Question @(i + 1)</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="lead">@question.QuestionText</p>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" 
+                                       name="Answers[@question.QuestionId]" 
+                                       value="A" 
+                                       id="q@(question.QuestionId)_a">
+                                <label class="form-check-label" for="q@(question.QuestionId)_a">
+                                    A. @question.OptionA
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" 
+                                       name="Answers[@question.QuestionId]" 
+                                       value="B" 
+                                       id="q@(question.QuestionId)_b">
+                                <label class="form-check-label" for="q@(question.QuestionId)_b">
+                                    B. @question.OptionB
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" 
+                                       name="Answers[@question.QuestionId]" 
+                                       value="C" 
+                                       id="q@(question.QuestionId)_c">
+                                <label class="form-check-label" for="q@(question.QuestionId)_c">
+                                    C. @question.OptionC
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" 
+                                       name="Answers[@question.QuestionId]" 
+                                       value="D" 
+                                       id="q@(question.QuestionId)_d">
+                                <label class="form-check-label" for="q@(question.QuestionId)_d">
+                                    D. @question.OptionD
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('Are you sure you want to submit your assessment?')">
+                        <i class="bi bi-check-circle"></i> Submit Assessment
+                    </button>
+                    <a asp-action="Training" asp-route-id="@Model.LearningId" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-arrow-left"></i> Back to Training
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Warn user before leaving the page
+        window.addEventListener('beforeunload', function (e) {
+            e.preventDefault();
+            e.returnValue = '';
+        });
+
+        // Remove warning when form is submitted
+        document.getElementById('assessmentForm').addEventListener('submit', function() {
+            window.removeEventListener('beforeunload', function() {});
+        });
+    </script>
+}

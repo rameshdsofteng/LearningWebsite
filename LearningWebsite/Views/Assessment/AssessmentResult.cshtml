@@ -1,0 +1,120 @@
+@model LearningWebsite.Models.AssessmentResultViewModel
+@{
+    ViewData["Title"] = "Assessment Result";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header @(Model.Passed ? "bg-success" : "bg-danger") text-white">
+            <h2>
+                <i class="bi @(Model.Passed ? "bi-check-circle" : "bi-x-circle")"></i> 
+                Assessment Result
+            </h2>
+        </div>
+        <div class="card-body">
+            <h3>@Model.LearningTitle</h3>
+            <hr />
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card text-center mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Questions</h5>
+                            <p class="display-4">@Model.TotalQuestions</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center mb-3 bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Correct Answers</h5>
+                            <p class="display-4">@Model.CorrectAnswers</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center mb-3 @(Model.Passed ? "bg-success" : "bg-danger") text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Score</h5>
+                            <p class="display-4">@Model.Score.ToString("F1")%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center mb-3 @(Model.Passed ? "bg-success" : "bg-danger") text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Status</h5>
+                            <p class="display-4">
+                                @if (Model.Passed)
+                                {
+                                    <i class="bi bi-check-circle"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-circle"></i>
+                                }
+                            </p>
+                            <p>@(Model.Passed ? "PASSED" : "FAILED")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert @(Model.Passed ? "alert-success" : "alert-danger") mt-3">
+                <h4>
+                    @if (Model.Passed)
+                    {
+                        <text>Congratulations! You have passed the assessment.</text>
+                    }
+                    else
+                    {
+                        <text>Unfortunately, you did not pass. You need 70% or above to pass. Please review the material and try again.</text>
+                    }
+                </h4>
+                <p class="mb-0"><strong>Completed:</strong> @Model.CompletedDate.ToString("MMM dd, yyyy hh:mm tt")</p>
+            </div>
+
+            <h4 class="mt-4">Detailed Results</h4>
+            <div class="accordion" id="questionAccordion">
+                @for (int i = 0; i < Model.QuestionResults.Count; i++)
+                {
+                    var result = Model.QuestionResults[i];
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading@i">
+                            <button class="accordion-button @(i == 0 ? "" : "collapsed")" type="button" 
+                                    data-bs-toggle="collapse" data-bs-target="#collapse@i" 
+                                    aria-expanded="@(i == 0 ? "true" : "false")" aria-controls="collapse@i">
+                                <span class="@(result.IsCorrect ? "text-success" : "text-danger") me-2">
+                                    <i class="bi @(result.IsCorrect ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                                </span>
+                                Question @(i + 1): @result.QuestionText
+                            </button>
+                        </h2>
+                        <div id="collapse@i" class="accordion-collapse collapse @(i == 0 ? "show" : "")" 
+                             aria-labelledby="heading@i" data-bs-parent="#questionAccordion">
+                            <div class="accordion-body">
+                                <p><strong>Your Answer:</strong> 
+                                    <span class="@(result.IsCorrect ? "text-success" : "text-danger")">
+                                        @result.YourAnswer
+                                    </span>
+                                </p>
+                                <p><strong>Correct Answer:</strong> 
+                                    <span class="text-success">@result.CorrectAnswer</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="mt-4">
+                <a asp-controller="Employee" asp-action="Index" class="btn btn-primary btn-lg">
+                    <i class="bi bi-house"></i> Back to Dashboard
+                </a>
+                <a asp-action="AssessmentHistory" class="btn btn-info btn-lg">
+                    <i class="bi bi-clock-history"></i> View History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
