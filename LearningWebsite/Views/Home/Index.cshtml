@@ -2,56 +2,113 @@
     ViewData["Title"] = "Learning Platform";
 }
 
-<div class="container-fluid py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-    <div class="container">
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/print.css" asp-append-version="true" />
+}
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
         <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="display-3 fw-bold mb-4">Welcome to Learning Platform</h1>
-                <p class="lead mb-4">
-                    A comprehensive learning management system for employees, managers, and HR teams. 
-                    Manage training, track progress, and develop your workforce.
+            <div class="col-lg-7">
+                <div class="hero-badge">
+                    <i class="fas fa-bolt"></i> Enterprise Learning Platform
+                </div>
+                <h1 class="hero-title">Transform Your Workforce Through Continuous Learning</h1>
+                <p class="hero-description">
+                    A comprehensive, enterprise-grade learning management system designed for modern organizations. 
+                    Track progress, manage training, and develop talent across your entire workforce.
                 </p>
                 @if (User?.Identity?.IsAuthenticated ?? false)
                 {
-                    <div class="btn-group" role="group">
+                    <div class="hero-actions">
                         @if (User.IsInRole("Employee"))
                         {
-                            <a class="btn btn-light btn-lg" asp-controller="Employee" asp-action="Index">
-                                <i class="fas fa-graduation-cap"></i> Employee Dashboard
+                            <a class="btn-hero btn-primary" asp-controller="Employee" asp-action="Index">
+                                <i class="fas fa-graduation-cap"></i> 
+                                <span>Go to Dashboard</span>
                             </a>
                         }
                         @if (User.IsInRole("Manager"))
                         {
-                            <a class="btn btn-light btn-lg" asp-controller="Manager" asp-action="Index">
-                                <i class="fas fa-users"></i> Manager Dashboard
+                            <a class="btn-hero btn-primary" asp-controller="Manager" asp-action="Index">
+                                <i class="fas fa-users"></i> 
+                                <span>Manager Portal</span>
                             </a>
                         }
                         @if (User.IsInRole("HR"))
                         {
-                            <a class="btn btn-light btn-lg" asp-controller="HR" asp-action="Index">
-                                <i class="fas fa-cogs"></i> HR Dashboard
+                            <a class="btn-hero btn-primary" asp-controller="HR" asp-action="Index">
+                                <i class="fas fa-cogs"></i> 
+                                <span>HR Admin Panel</span>
                             </a>
                         }
                     </div>
                 }
                 else
                 {
-                    <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Login">
-                        <i class="fas fa-sign-in-alt"></i> Login to Your Account
-                    </a>
+                    <div class="hero-actions">
+                        <a class="btn-hero btn-primary" asp-controller="Account" asp-action="Login">
+                            <i class="fas fa-sign-in-alt"></i> 
+                            <span>Sign In to Your Account</span>
+                        </a>
+                    </div>
                 }
             </div>
-            <div class="col-md-4">
-                <div class="card shadow-lg border-0">
-                    <div class="card-body text-dark p-4">
-                        <h5 class="card-title mb-3">🎯 Key Features</h5>
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><i class="fas fa-check-circle text-success"></i> Track Learning Progress</li>
-                            <li class="mb-2"><i class="fas fa-check-circle text-success"></i> Assign Courses</li>
-                            <li class="mb-2"><i class="fas fa-check-circle text-success"></i> Team Management</li>
-                            <li class="mb-2"><i class="fas fa-check-circle text-success"></i> Performance Reports</li>
-                            <li class="mb-2"><i class="fas fa-check-circle text-success"></i> Role-Based Access</li>
-                        </ul>
+            <div class="col-lg-5">
+                <div class="features-card">
+                    <div class="features-header">
+                        <i class="fas fa-star"></i>
+                        <h3>Platform Capabilities</h3>
+                    </div>
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Progress Tracking</h5>
+                                <p>Real-time learning analytics</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Course Management</h5>
+                                <p>Comprehensive training catalog</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-users-cog"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Team Collaboration</h5>
+                                <p>Manager-employee workflows</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Assessment System</h5>
+                                <p>Skill validation & certification</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Role-Based Security</h5>
+                                <p>Enterprise-grade access control</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -59,35 +116,112 @@
     </div>
 </div>
 
-<div class="container py-5">
-    <div class="row mb-5">
-        <div class="col-md-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <div class="display-4 text-primary mb-3"><i class="fas fa-user-tie"></i></div>
-                    <h5 class="card-title">Employee</h5>
-                    <p class="card-text">Track your learning assignments, monitor progress, and complete courses assigned by managers.</p>
-                </div>
-            </div>
+<!-- Roles Section -->
+<div class="roles-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Built for Every Role in Your Organization</h2>
+            <p>Tailored experiences for employees, managers, and administrators</p>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <div class="display-4 text-success mb-3"><i class="fas fa-users"></i></div>
-                    <h5 class="card-title">Manager</h5>
-                    <p class="card-text">Manage your team members, assign learning courses, and monitor their progress and achievements.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <div class="display-4 text-info mb-3"><i class="fas fa-cogs"></i></div>
-                    <h5 class="card-title">HR Admin</h5>
-                    <p class="card-text">Administrative access to manage users, courses, and organizational learning strategies.</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="role-card role-employee">
+                    <div class="role-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3>Employee Portal</h3>
+                    <p class="role-description">
+                        Access your personalized learning dashboard with assigned courses, progress tracking, and achievement history.
+                    </p>
+                    <ul class="role-features">
+                        <li><i class="fas fa-check"></i> View assigned trainings</li>
+                        <li><i class="fas fa-check"></i> Take assessments</li>
+                        <li><i class="fas fa-check"></i> Track completion status</li>
+                        <li><i class="fas fa-check"></i> Download certificates</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="role-card role-manager">
+                    <div class="role-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Manager Portal</h3>
+                    <p class="role-description">
+                        Manage team development with powerful tools to assign courses, monitor progress, and drive performance.
+                    </p>
+                    <ul class="role-features">
+                        <li><i class="fas fa-check"></i> Assign learning paths</li>
+                        <li><i class="fas fa-check"></i> Monitor team progress</li>
+                        <li><i class="fas fa-check"></i> View detailed reports</li>
+                        <li><i class="fas fa-check"></i> Track skill development</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="role-card role-hr">
+                    <div class="role-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3>HR Admin Portal</h3>
+                    <p class="role-description">
+                        Complete administrative control over the learning ecosystem with user management and analytics.
+                    </p>
+                    <ul class="role-features">
+                        <li><i class="fas fa-check"></i> Manage all users</li>
+                        <li><i class="fas fa-check"></i> Create course catalog</li>
+                        <li><i class="fas fa-check"></i> Organization-wide reports</li>
+                        <li><i class="fas fa-check"></i> Strategic planning tools</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- Stats Section -->
+<div class="stats-section">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-number">Multi-Role</div>
+                    <div class="stat-label">Access Levels</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="stat-number">Unlimited</div>
+                    <div class="stat-label">Course Capacity</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="stat-number">Real-Time</div>
+                    <div class="stat-label">Analytics</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="stat-number">Enterprise</div>
+                    <div class="stat-label">Security</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

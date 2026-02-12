@@ -42,8 +42,19 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<AppDbContext>();
     var hasher = services.GetRequiredService<IPasswordHasher<ApplicationUser>>();
-    DbInitializer.Initialize(db, hasher);
-    QuestionDataInitializer.Initialize(db);
+
+    // Check if we should reset the database (delete all data and reseed)
+    var resetDatabase = builder.Configuration.GetValue<bool>("ResetDatabase", false);
+
+    if (resetDatabase)
+    {
+        DatabaseCleaner.ResetDatabase(db, hasher);
+    }
+    else
+    {
+        DbInitializer.Initialize(db, hasher);
+        QuestionDataInitializer.Initialize(db);
+    }
 }
 
 // Configure the HTTP request pipeline.

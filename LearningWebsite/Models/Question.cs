@@ -10,6 +10,7 @@ namespace LearningWebsite.Models
         public string OptionC { get; set; } = string.Empty;
         public string OptionD { get; set; } = string.Empty;
         public string CorrectAnswer { get; set; } = string.Empty; // A, B, C, or D
+        public string DifficultyLevel { get; set; } = "Beginner"; // Beginner, Intermediate, Advanced
 
         // Navigation property
         public Learning? Learning { get; set; }

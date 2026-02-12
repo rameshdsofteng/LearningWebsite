@@ -40,12 +40,17 @@ namespace LearningWebsite.Controllers.Api
                     .OrderByDescending(la => la.AssignedDate)
                     .ToListAsync();
 
+                // Get certificate count
+                var certificatesCount = await _context.Certificates
+                    .CountAsync(c => c.UserId == userId);
+
                 var dashboardData = new
                 {
                     TotalAssignments = assignments.Count,
                     Completed = assignments.Count(a => a.Status == "Completed"),
                     InProgress = assignments.Count(a => a.Status == "InProgress"),
                     NotStarted = assignments.Count(a => a.Status == "NotStarted"),
+                    CertificatesCount = certificatesCount,
                     Assignments = assignments.Select(a => new
                     {
                         a.Id,

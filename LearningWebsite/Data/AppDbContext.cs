@@ -14,6 +14,8 @@ namespace LearningWebsite.Data
         public DbSet<LearningAssignment> LearningAssignments { get; set; } = null!;
         public DbSet<Question> Questions { get; set; } = null!;
         public DbSet<AssessmentResult> AssessmentResults { get; set; } = null!;
+        public DbSet<AssessmentAnswerDetail> AssessmentAnswerDetails { get; set; } = null!;
+        public DbSet<Certificate> Certificates { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -61,6 +63,19 @@ namespace LearningWebsite.Data
                 .WithMany()
                 .HasForeignKey(ar => ar.LearningId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // AssessmentAnswerDetail relationships
+            modelBuilder.Entity<AssessmentAnswerDetail>()
+                .HasOne(aad => aad.AssessmentResult)
+                .WithMany(ar => ar.AnswerDetails)
+                .HasForeignKey(aad => aad.AssessmentResultId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AssessmentAnswerDetail>()
+                .HasOne(aad => aad.Question)
+                .WithMany()
+                .HasForeignKey(aad => aad.QuestionId)
+                .OnDelete(DeleteBehavior.NoAction);  // Prevent cascade delete conflict
 
             // Configure decimal precision for Score
             modelBuilder.Entity<AssessmentResult>()

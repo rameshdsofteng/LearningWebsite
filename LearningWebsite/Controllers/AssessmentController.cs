@@ -170,6 +170,9 @@ namespace LearningWebsite.Controllers
                 decimal score = totalQuestions > 0 ? (decimal)correctAnswers / totalQuestions * 100 : 0;
                 bool passed = score >= 70;
 
+                // Get difficulty level from first question (assuming all questions have same level)
+                string difficultyLevel = questions.FirstOrDefault()?.DifficultyLevel ?? "Beginner";
+
                 _logger.LogInformation("Assessment completed: User {UserId}, Learning {LearningId}, Score {Score}%, Passed: {Passed}", 
                     userId, submission.LearningId, score, passed);
 
@@ -182,10 +185,35 @@ namespace LearningWebsite.Controllers
                     TotalQuestions = totalQuestions,
                     CorrectAnswers = correctAnswers,
                     Score = score,
-                    Passed = passed
+                    Passed = passed,
+                    DifficultyLevel = difficultyLevel
                 };
 
                 _context.AssessmentResults.Add(assessmentResult);
+                await _context.SaveChangesAsync(); // Save first to get the AssessmentResult ID
+
+                // Save detailed answer information
+                foreach (var question in questions)
+                {
+                    var userAnswer = submission.Answers.ContainsKey(question.Id) 
+                        ? submission.Answers[question.Id] 
+                        : "";
+
+                    var answerDetail = new AssessmentAnswerDetail
+                    {
+                        AssessmentResultId = assessmentResult.Id,
+                        QuestionId = question.Id,
+                        QuestionText = question.QuestionText,
+                        UserAnswer = GetAnswerText(question, userAnswer),
+                        CorrectAnswer = GetAnswerText(question, question.CorrectAnswer),
+                        IsCorrect = userAnswer.Equals(question.CorrectAnswer, StringComparison.OrdinalIgnoreCase)
+                    };
+
+                    _context.AssessmentAnswerDetails.Add(answerDetail);
+                }
+
+                // Get learning title (needed for certificate)
+                var learning = await _context.Learnings.FindAsync(submission.LearningId);
 
                 // Update assignment status if passed
                 if (passed)
@@ -202,12 +230,32 @@ namespace LearningWebsite.Controllers
                         _logger.LogInformation("Assignment auto-completed for User {UserId}, Learning {LearningId}", 
                             userId, submission.LearningId);
                     }
+
+                    // Generate certificate for passed assessment
+                    var user = await _context.Users.FindAsync(userId);
+                    var certificateNumber = GenerateCertificateNumber(userId, submission.LearningId);
+
+                    var certificate = new Certificate
+                    {
+                        UserId = userId,
+                        LearningId = submission.LearningId,
+                        AssessmentResultId = assessmentResult.Id,
+                        CertificateNumber = certificateNumber,
+                        IssuedDate = DateTime.Now,
+                        Score = score,
+                        Title = $"{learning?.Title} - {difficultyLevel} Level",
+                        DifficultyLevel = difficultyLevel,
+                        LearningTitle = learning?.Title ?? "Assessment",
+                        EmployeeName = user?.FullName ?? User.Identity?.Name ?? "Employee",
+                        Description = $"Successfully completed {learning?.Title} with a score of {score:F1}%"
+                    };
+
+                    _context.Certificates.Add(certificate);
+                    _logger.LogInformation("Certificate {CertificateNumber} generated for User {UserId}, Learning {LearningId}",
+                        certificateNumber, userId, submission.LearningId);
                 }
 
                 await _context.SaveChangesAsync();
-
-                // Get learning title
-                var learning = await _context.Learnings.FindAsync(submission.LearningId);
 
                 var resultViewModel = new AssessmentResultViewModel
                 {
@@ -242,6 +290,16 @@ namespace LearningWebsite.Controllers
             };
         }
 
+        // Helper method to generate unique certificate number
+        // Format: CERT-YYYYMMDD-XXXX-YYYY
+        private string GenerateCertificateNumber(int userId, int learningId)
+        {
+            var dateString = DateTime.Now.ToString("yyyyMMdd");
+            var userPart = userId.ToString("D4");
+            var learningPart = learningId.ToString("D4");
+            return $"CERT-{dateString}-{userPart}-{learningPart}";
+        }
+
         // View assessment history
         public async Task<IActionResult> AssessmentHistory()
         {
@@ -251,13 +309,26 @@ namespace LearningWebsite.Controllers
                 _logger.LogInformation("User {UserId} ({UserName}) viewing assessment history", 
                     userId, User.Identity?.Name);
 
-                var results = await _context.AssessmentResults
+                // Get all learning IDs that are assigned to this user
+                var assignedLearningIds = await _context.LearningAssignments
+                    .Where(la => la.UserId == userId)
+                    .Select(la => la.LearningId)
+                    .ToListAsync();
+
+                // Get all assessment results for assigned learnings only
+                var allResults = await _context.AssessmentResults
                     .Include(ar => ar.Learning)
-                    .Where(ar => ar.UserId == userId)
+                    .Where(ar => ar.UserId == userId && assignedLearningIds.Contains(ar.LearningId))
                     .OrderByDescending(ar => ar.CompletedDate)
                     .ToListAsync();
 
-                _logger.LogInformation("Retrieved {Count} assessment results for User {UserId}", 
+                // Group by LearningId and take the latest attempt (in memory)
+                var results = allResults
+                    .GroupBy(ar => ar.LearningId)
+                    .Select(g => g.First()) // First is already the latest due to OrderBy above
+                    .ToList();
+
+                _logger.LogInformation("Retrieved {Count} unique assessment results for User {UserId}", 
                     results.Count, userId);
 
                 return View(results);
@@ -266,6 +337,57 @@ namespace LearningWebsite.Controllers
             {
                 _logger.LogError(ex, "Error loading assessment history");
                 return StatusCode(500, "An error occurred while loading the assessment history.");
+            }
+        }
+
+        // View detailed assessment review
+        public async Task<IActionResult> ReviewAssessment(int id)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+                var assessmentResult = await _context.AssessmentResults
+                    .Include(ar => ar.Learning)
+                    .Include(ar => ar.AnswerDetails)
+                    .FirstOrDefaultAsync(ar => ar.Id == id && ar.UserId == userId);
+
+                if (assessmentResult == null)
+                {
+                    return NotFound("Assessment result not found.");
+                }
+
+                // Check if certificate exists for this assessment
+                var certificate = await _context.Certificates
+                    .FirstOrDefaultAsync(c => c.AssessmentResultId == id && c.UserId == userId);
+
+                var viewModel = new AssessmentResultViewModel
+                {
+                    LearningTitle = assessmentResult.Learning?.Title ?? "Assessment",
+                    TotalQuestions = assessmentResult.TotalQuestions,
+                    CorrectAnswers = assessmentResult.CorrectAnswers,
+                    Score = assessmentResult.Score,
+                    Passed = assessmentResult.Passed,
+                    CompletedDate = assessmentResult.CompletedDate,
+                    QuestionResults = assessmentResult.AnswerDetails.Select(ad => new QuestionResultViewModel
+                    {
+                        QuestionText = ad.QuestionText,
+                        YourAnswer = ad.UserAnswer,
+                        CorrectAnswer = ad.CorrectAnswer,
+                        IsCorrect = ad.IsCorrect
+                    }).ToList()
+                };
+
+                // Pass certificate information to the view
+                ViewBag.CertificateId = certificate?.Id;
+                ViewBag.HasCertificate = certificate != null;
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading assessment review for result {ResultId}", id);
+                return StatusCode(500, "An error occurred while loading the assessment review.");
             }
         }
     }

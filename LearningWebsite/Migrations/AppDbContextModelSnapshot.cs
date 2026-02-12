@@ -61,6 +61,44 @@ namespace LearningWebsite.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("LearningWebsite.Models.AssessmentAnswerDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssessmentResultId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CorrectAnswer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserAnswer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentResultId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("AssessmentAnswerDetails", (string)null);
+                });
+
             modelBuilder.Entity("LearningWebsite.Models.AssessmentResult", b =>
                 {
                     b.Property<int>("Id")
@@ -97,7 +135,60 @@ namespace LearningWebsite.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AssessmentResults");
+                    b.ToTable("AssessmentResults", (string)null);
+                });
+
+            modelBuilder.Entity("LearningWebsite.Models.Certificate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssessmentResultId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CertificateNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("EmployeeName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("IssuedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LearningId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LearningTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("Score")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentResultId");
+
+                    b.HasIndex("LearningId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Certificates", (string)null);
                 });
 
             modelBuilder.Entity("LearningWebsite.Models.Learning", b =>
@@ -125,7 +216,7 @@ namespace LearningWebsite.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Learnings");
+                    b.ToTable("Learnings", (string)null);
                 });
 
             modelBuilder.Entity("LearningWebsite.Models.LearningAssignment", b =>
@@ -164,7 +255,7 @@ namespace LearningWebsite.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("LearningAssignments");
+                    b.ToTable("LearningAssignments", (string)null);
                 });
 
             modelBuilder.Entity("LearningWebsite.Models.Question", b =>
@@ -206,7 +297,7 @@ namespace LearningWebsite.Migrations
 
                     b.HasIndex("LearningId");
 
-                    b.ToTable("Questions");
+                    b.ToTable("Questions", (string)null);
                 });
 
             modelBuilder.Entity("LearningWebsite.Models.ApplicationUser", b =>
@@ -217,6 +308,25 @@ namespace LearningWebsite.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("LearningWebsite.Models.AssessmentAnswerDetail", b =>
+                {
+                    b.HasOne("LearningWebsite.Models.AssessmentResult", "AssessmentResult")
+                        .WithMany("AnswerDetails")
+                        .HasForeignKey("AssessmentResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LearningWebsite.Models.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentResult");
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("LearningWebsite.Models.AssessmentResult", b =>
@@ -232,6 +342,33 @@ namespace LearningWebsite.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.Navigation("Learning");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("LearningWebsite.Models.Certificate", b =>
+                {
+                    b.HasOne("LearningWebsite.Models.AssessmentResult", "AssessmentResult")
+                        .WithMany()
+                        .HasForeignKey("AssessmentResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LearningWebsite.Models.Learning", "Learning")
+                        .WithMany()
+                        .HasForeignKey("LearningId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LearningWebsite.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentResult");
 
                     b.Navigation("Learning");
 
@@ -273,6 +410,11 @@ namespace LearningWebsite.Migrations
                     b.Navigation("Assignments");
 
                     b.Navigation("TeamMembers");
+                });
+
+            modelBuilder.Entity("LearningWebsite.Models.AssessmentResult", b =>
+                {
+                    b.Navigation("AnswerDetails");
                 });
 
             modelBuilder.Entity("LearningWebsite.Models.Learning", b =>

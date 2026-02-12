@@ -17,30 +17,6 @@
         </div>
     </div>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    @if (TempData["InfoMessage"] != null)
-    {
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <i class="fas fa-info-circle"></i> @TempData["InfoMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
     <!-- Member Info Card -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 bg-primary text-white">
@@ -219,8 +195,30 @@
     <script>
         let allLearnings = [];
 
-        // Load available learnings
         $(document).ready(function() {
+            // Show notification messages from TempData
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                showSuccess('@Html.Raw(TempData["SuccessMessage"])');
+                </text>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showError('@Html.Raw(TempData["ErrorMessage"])');
+                </text>
+            }
+
+            @if (TempData["InfoMessage"] != null)
+            {
+                <text>
+                showInfo('@Html.Raw(TempData["InfoMessage"])');
+                </text>
+            }
+
+            // Load available learnings
             $.get('/api/learnings', function(data) {
                 allLearnings = data;
                 var select = $('#learningIds');

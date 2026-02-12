@@ -10,9 +10,11 @@ namespace LearningWebsite.Models
         public int CorrectAnswers { get; set; }
         public decimal Score { get; set; } // Percentage
         public bool Passed { get; set; } // Pass if Score >= 70
+        public string DifficultyLevel { get; set; } = "Beginner"; // Beginner, Intermediate, Advanced
 
         // Navigation properties
         public ApplicationUser? User { get; set; }
         public Learning? Learning { get; set; }
+        public ICollection<AssessmentAnswerDetail> AnswerDetails { get; set; } = new List<AssessmentAnswerDetail>();
     }
 }
